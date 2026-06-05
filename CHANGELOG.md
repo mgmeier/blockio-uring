@@ -1,5 +1,15 @@
 # Revision history for blockio-uring
 
+## NEXT -- unreleased
+
+### New features
+
+* macOS (Darwin) support via a GCD-based I/O backend. Dispatches
+  `pread`/`pwrite` through Grand Central Dispatch and delivers completions
+  via a pipe/kqueue, providing the same batched async I/O interface as the
+  Linux `io_uring` backend. See `docs/README_DARWIN.md` and
+  `docs/BENCH_DARWIN.md`.
+
 ## 0.2.0.0 -- 2026-04-30
 
 ### Breaking changes
