@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP              #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 
 {- HLINT ignore "Use camelCase" -}
@@ -8,7 +9,11 @@ module Main (main) where
 import           Data.Proxy
 import           Data.Word                  (Word64)
 import           System.IO.BlockIO.URing
-import qualified System.IO.BlockIO.URingFFI as FFI
+#if defined(darwin_HOST_OS)
+import qualified System.IO.BlockIO.DarwinFFI as FFI
+#else
+import qualified System.IO.BlockIO.URingFFI  as FFI
+#endif
 import           Test.QuickCheck.Classes
 import           Test.Tasty
 import           Test.Tasty.HUnit

@@ -1,5 +1,6 @@
-{-# LANGUAGE PatternSynonyms #-}
-{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE CPP              #-}
+{-# LANGUAGE PatternSynonyms  #-}
+{-# LANGUAGE TypeFamilies     #-}
 
 module System.IO.BlockIO.URing (
     URing,
@@ -34,7 +35,11 @@ import System.Posix.Types
 import Control.Monad
 import Control.Exception
 
-import qualified System.IO.BlockIO.URingFFI as FFI
+#if defined(darwin_HOST_OS)
+import qualified System.IO.BlockIO.DarwinFFI as FFI
+#else
+import qualified System.IO.BlockIO.URingFFI  as FFI
+#endif
 
 
 --

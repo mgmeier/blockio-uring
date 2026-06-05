@@ -30,6 +30,12 @@ tested-with:
 extra-doc-files:
   CHANGELOG.md
   README.md
+  docs/*.md
+
+extra-source-files:
+  cbits/darwin_io.c
+  cbits/darwin_io.h
+
 
 source-repository head
   type:     git
@@ -62,26 +68,35 @@ common language
     RoleAnnotations
     ViewPatterns
 
+common platform-io
+  if os(linux)
+    other-modules:     System.IO.BlockIO.URingFFI
+    -- Annoyingly, liburing-2.1 has the wrong version in its liburing.pc file,
+    -- namely version 2.0. So, even though we are actually only supporting >=2.1,
+    -- we have to use >=2.0 here.
+    pkgconfig-depends: liburing >=2.0 && <3
+  if os(darwin)
+    other-modules:     System.IO.BlockIO.DarwinFFI
+    c-sources:         cbits/darwin_io.c
+    include-dirs:      cbits
+    extra-libraries:   pthread
+  if os(windows)
+    buildable:         False
+
 library
-  import:            language, warnings
+  import:            language, warnings, platform-io
   exposed-modules:   System.IO.BlockIO
   hs-source-dirs:    src
   other-modules:
     System.IO.BlockIO.URing
-    System.IO.BlockIO.URingFFI
 
   build-depends:
     , base       >=4.16  && <4.23
     , primitive  ^>=0.8  || ^>=0.9
     , vector     ^>=0.13
 
-  -- Annoyingly, liburing-2.1 has the wrong version in its liburing.pc file,
-  -- namely version 2.0. So, even though we are actually only supporting >=2.1,
-  -- we have to use >=2.0 here.
-  pkgconfig-depends: liburing >=2.0 && <3
-
 benchmark bench
-  import:            language, warnings
+  import:            language, warnings, platform-io
   type:              exitcode-stdio-1.0
   hs-source-dirs:    benchmark src
   main-is:           Bench.hs
@@ -95,11 +110,9 @@ benchmark bench
     , unix        ^>=2.8.7.0
     , vector
 
-  pkgconfig-depends: liburing
   other-modules:
     System.IO.BlockIO
     System.IO.BlockIO.URing
-    System.IO.BlockIO.URingFFI
 
   ghc-options:       -threaded -with-rtsopts=-T
 
@@ -120,7 +133,7 @@ test-suite test
   ghc-options:    -threaded
 
 test-suite test-internals
-  import:            language, warnings
+  import:            language, warnings, platform-io
   type:              exitcode-stdio-1.0
   hs-source-dirs:    test src
   main-is:           test-internals.hs
@@ -133,10 +146,8 @@ test-suite test-internals
     , tasty-quickcheck
     , vector
 
-  pkgconfig-depends: liburing
   other-modules:
     System.IO.BlockIO
     System.IO.BlockIO.URing
-    System.IO.BlockIO.URingFFI
 
   ghc-options:       -threaded -fno-ignore-asserts
